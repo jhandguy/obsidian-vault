@@ -1,0 +1,23 @@
+.PHONY: all tidy lint vet staticcheck check build test
+
+all: tidy lint vet staticcheck check build test
+
+lint:
+	revive -config revive.toml -formatter friendly ./...
+
+vet:
+	go vet ./...
+
+staticcheck:
+	staticcheck ./...
+
+tidy:
+	go mod tidy -go=1.22.0
+
+check: tidy lint vet staticcheck
+
+build: check
+	go build -o bin/ov
+
+test:
+	go test -v ./...
