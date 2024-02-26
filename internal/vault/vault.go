@@ -48,7 +48,7 @@ func New(path string) (*Vault, error) {
 
 func (v *Vault) Clone(create bool) error {
 	shell := env.GetShell()
-	name := filepath.Base(v.gitPath)
+	name := filepath.Base(v.localPath)
 
 	if create {
 		if err := gh.CreateRepository(shell, name); err != nil {
@@ -56,7 +56,7 @@ func (v *Vault) Clone(create bool) error {
 		}
 	}
 
-	if err := gh.CloneRepository(shell, name, v.localPath); err != nil {
+	if err := gh.CloneRepository(shell, name, v.gitPath); err != nil {
 		return err
 	}
 
