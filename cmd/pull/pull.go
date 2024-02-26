@@ -30,17 +30,10 @@ func pull(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	source, err := vault.GetGitRepositoryPath(path)
+	v, err := vault.New(path, vault.GitVaultType)
 	if err != nil {
 		return err
 	}
-
-	target, err := vault.GetObsidianVaultPath(path)
-	if err != nil {
-		return err
-	}
-
-	v := vault.New(source, target)
 
 	if err = v.Pull(shell); err != nil {
 		return err

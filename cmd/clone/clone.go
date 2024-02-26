@@ -1,10 +1,7 @@
 package clone
 
 import (
-	"path/filepath"
-
 	"github.com/jhandguy/obsidian-vault/internal/env"
-	"github.com/jhandguy/obsidian-vault/internal/gh"
 	"github.com/jhandguy/obsidian-vault/internal/vault"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
@@ -18,10 +15,10 @@ var Cmd = &cobra.Command{
 	SilenceErrors: true,
 }
 
-var shouldCreateRepository bool
+var create bool
 
 func init() {
-	Cmd.Flags().BoolVar(&shouldCreateRepository, "create", false, "should create repository before cloning")
+	Cmd.Flags().BoolVar(&create, "create", false, "should create repository before cloning")
 }
 
 func clone(cmd *cobra.Command, _ []string) error {
@@ -32,25 +29,12 @@ func clone(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	source, err := vault.GetObsidianVaultPath(path)
+	v, err := vault.New(path, vault.GitVaultType)
 	if err != nil {
 		return err
 	}
 
-	target, err := vault.GetGitRepositoryPath(path)
-	if err != nil {
-		return err
-	}
-
-	name := filepath.Base(source)
-
-	if shouldCreateRepository {
-		if err := gh.CreateRepository(shell, name); err != nil {
-			return err
-		}
-	}
-
-	if err := gh.CloneRepository(shell, name, target); err != nil {
+	if err := v.Clone(shell, create); err != nil {
 		return err
 	}
 

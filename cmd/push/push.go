@@ -30,17 +30,10 @@ func push(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	source, err := vault.GetObsidianVaultPath(path)
+	v, err := vault.New(path, vault.LocalVaultType)
 	if err != nil {
 		return err
 	}
-
-	target, err := vault.GetGitRepositoryPath(path)
-	if err != nil {
-		return err
-	}
-
-	v := vault.New(source, target)
 
 	if err = v.Scan(); err != nil {
 		return err
