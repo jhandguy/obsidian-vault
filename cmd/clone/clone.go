@@ -1,7 +1,6 @@
 package clone
 
 import (
-	"github.com/jhandguy/obsidian-vault/internal/env"
 	"github.com/jhandguy/obsidian-vault/internal/vault"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
@@ -22,19 +21,17 @@ func init() {
 }
 
 func clone(cmd *cobra.Command, _ []string) error {
-	shell := env.GetShell()
-
 	path, err := cmd.InheritedFlags().GetString("path")
 	if err != nil {
 		return err
 	}
 
-	v, err := vault.New(path, vault.GitVaultType)
+	v, err := vault.New(path)
 	if err != nil {
 		return err
 	}
 
-	if err := v.Clone(shell, create); err != nil {
+	if err := v.Clone(create); err != nil {
 		return err
 	}
 

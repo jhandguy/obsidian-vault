@@ -1,7 +1,6 @@
 package push
 
 import (
-	"github.com/jhandguy/obsidian-vault/internal/env"
 	"github.com/jhandguy/obsidian-vault/internal/vault"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
@@ -23,31 +22,17 @@ func init() {
 }
 
 func push(cmd *cobra.Command, _ []string) error {
-	shell := env.GetShell()
-
 	path, err := cmd.InheritedFlags().GetString("path")
 	if err != nil {
 		return err
 	}
 
-	v, err := vault.New(path, vault.LocalVaultType)
+	v, err := vault.New(path)
 	if err != nil {
 		return err
 	}
 
-	if err = v.Scan(); err != nil {
-		return err
-	}
-
-	if err = v.Clean(); err != nil {
-		return err
-	}
-
-	if err = v.Encrypt(password); err != nil {
-		return err
-	}
-
-	if err = v.Push(shell); err != nil {
+	if err = v.Push(password); err != nil {
 		return err
 	}
 

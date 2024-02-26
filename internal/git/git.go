@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os/exec"
 	"path/filepath"
+
+	"go.uber.org/zap"
 )
 
 const gitFolder = ".git"
@@ -35,6 +37,8 @@ func Commit(shell, path, msg string) error {
 }
 
 func Push(shell, path string) error {
+	zap.S().Info("🚀 pushing vault to GitHub")
+
 	folder := filepath.Join(path, gitFolder)
 	command := fmt.Sprintf("git --git-dir %s --work-tree %s push origin main", folder, path)
 	cmd := exec.Command(shell, "-c", command)
@@ -48,6 +52,8 @@ func Push(shell, path string) error {
 }
 
 func Pull(shell, path string) error {
+	zap.S().Info("📡 pulling vault from GitHub")
+
 	folder := filepath.Join(path, gitFolder)
 	command := fmt.Sprintf("git --git-dir %s --work-tree %s pull origin main", folder, path)
 	cmd := exec.Command(shell, "-c", command)

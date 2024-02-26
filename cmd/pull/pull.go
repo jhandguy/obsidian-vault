@@ -1,7 +1,6 @@
 package pull
 
 import (
-	"github.com/jhandguy/obsidian-vault/internal/env"
 	"github.com/jhandguy/obsidian-vault/internal/vault"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
@@ -23,31 +22,17 @@ func init() {
 }
 
 func pull(cmd *cobra.Command, _ []string) error {
-	shell := env.GetShell()
-
 	path, err := cmd.InheritedFlags().GetString("path")
 	if err != nil {
 		return err
 	}
 
-	v, err := vault.New(path, vault.GitVaultType)
+	v, err := vault.New(path)
 	if err != nil {
 		return err
 	}
 
-	if err = v.Pull(shell); err != nil {
-		return err
-	}
-
-	if err = v.Scan(); err != nil {
-		return err
-	}
-
-	if err = v.Clean(); err != nil {
-		return err
-	}
-
-	if err = v.Decrypt(password); err != nil {
+	if err = v.Pull(password); err != nil {
 		return err
 	}
 
