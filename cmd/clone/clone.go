@@ -3,11 +3,10 @@ package clone
 import (
 	"path/filepath"
 
-	"github.com/jhandguy/obsidian-vault/cmd/flags"
+	"github.com/jhandguy/obsidian-vault/internal/env"
 	"github.com/jhandguy/obsidian-vault/internal/gh"
 	"github.com/jhandguy/obsidian-vault/internal/vault"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
 
@@ -19,24 +18,16 @@ var Cmd = &cobra.Command{
 	SilenceErrors: true,
 }
 
+var shouldCreateRepository bool
+
 func init() {
-	bindBoolPFlag("create", false, "should create repository before cloning")
+	Cmd.Flags().BoolVar(&shouldCreateRepository, "create", false, "should create repository before cloning")
 }
 
-func bindBoolPFlag(name string, value bool, usage string) {
-	Cmd.PersistentFlags().Bool(name, value, usage)
-	if err := viper.BindPFlag(name, Cmd.PersistentFlags().Lookup(name)); err != nil {
-		zap.S().Fatalf("failed to bind bool persistent flag '%s': %v", name, err)
-	}
-}
+func clone(cmd *cobra.Command, _ []string) error {
+	shell := env.GetShell()
 
-func clone(*cobra.Command, []string) error {
-	shell, err := flags.GetString("shell")
-	if err != nil {
-		return err
-	}
-
-	path, err := flags.GetString("path")
+	path, err := cmd.InheritedFlags().GetString("path")
 	if err != nil {
 		return err
 	}
@@ -53,7 +44,7 @@ func clone(*cobra.Command, []string) error {
 
 	name := filepath.Base(source)
 
-	if viper.GetBool("create") {
+	if shouldCreateRepository {
 		if err := gh.CreateRepository(shell, name); err != nil {
 			return err
 		}

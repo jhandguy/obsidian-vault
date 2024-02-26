@@ -1,7 +1,7 @@
 package push
 
 import (
-	"github.com/jhandguy/obsidian-vault/cmd/flags"
+	"github.com/jhandguy/obsidian-vault/internal/env"
 	"github.com/jhandguy/obsidian-vault/internal/vault"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
@@ -15,18 +15,17 @@ var Cmd = &cobra.Command{
 	SilenceErrors: true,
 }
 
-func push(*cobra.Command, []string) error {
-	shell, err := flags.GetString("shell")
-	if err != nil {
-		return err
-	}
+var password string
 
-	password, err := flags.GetString("password")
-	if err != nil {
-		return err
-	}
+func init() {
+	Cmd.Flags().StringVarP(&password, "password", "p", "", "password to encrypt the obsidian vault")
+	Cmd.MarkFlagRequired("password")
+}
 
-	path, err := flags.GetString("path")
+func push(cmd *cobra.Command, _ []string) error {
+	shell := env.GetShell()
+
+	path, err := cmd.InheritedFlags().GetString("path")
 	if err != nil {
 		return err
 	}

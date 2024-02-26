@@ -69,6 +69,11 @@ func (v *Vault) Scan() error {
 	return nil
 }
 
+func (v *Vault) isObsidianVault() bool {
+	_, err := os.Stat(filepath.Join(v.sourcePath, obsidianFolder))
+	return !os.IsNotExist(err)
+}
+
 func (v *Vault) Clean() error {
 	fn := func(path string, d fs.DirEntry, e error) error {
 		if v.targetPath == path {
@@ -183,11 +188,6 @@ func (v *Vault) Pull(shell string) error {
 	zap.S().Info("📡 pulling vault from GitHub")
 
 	return git.Pull(shell, v.sourcePath)
-}
-
-func (v *Vault) isObsidianVault() bool {
-	_, err := os.Stat(filepath.Join(v.sourcePath, obsidianFolder))
-	return !os.IsNotExist(err)
 }
 
 func GetObsidianVaultPath(path string) (string, error) {
