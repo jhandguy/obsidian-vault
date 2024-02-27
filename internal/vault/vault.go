@@ -111,12 +111,9 @@ func (v *Vault) Push(password string) error {
 }
 
 func (v *Vault) scan(t vaultType) error {
-	var path string
-	switch t {
-	case vaultTypeLocal:
-		path = v.localPath
-	case vaultTypeGit:
-		path = v.gitPath
+	path, err := v.getVaultPath(t)
+	if err != nil {
+		return err
 	}
 
 	if _, err := os.Stat(filepath.Join(path, ".obsidian")); os.IsNotExist(err) {
@@ -156,12 +153,9 @@ func (v *Vault) scan(t vaultType) error {
 }
 
 func (v *Vault) clean(t vaultType) error {
-	var path string
-	switch t {
-	case vaultTypeLocal:
-		path = v.localPath
-	case vaultTypeGit:
-		path = v.gitPath
+	path, err := v.getVaultPath(t)
+	if err != nil {
+		return err
 	}
 
 	fn := func(p string, d fs.DirEntry, e error) error {
@@ -200,6 +194,17 @@ func (v *Vault) clean(t vaultType) error {
 	}
 
 	return nil
+}
+
+func (v *Vault) getVaultPath(t vaultType) (string, error) {
+	switch t {
+	case vaultTypeLocal:
+		return v.localPath, nil
+	case vaultTypeGit:
+		return v.gitPath, nil
+	default:
+		return "", fmt.Errorf("unknown vault type: %s", t)
+	}
 }
 
 func (v *Vault) encrypt(password string) error {
