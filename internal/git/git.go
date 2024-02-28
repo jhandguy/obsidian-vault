@@ -8,10 +8,10 @@ import (
 	"go.uber.org/zap"
 )
 
-const gitFolder = ".git"
+const GitFolder = ".git"
 
 func Add(shell, path string) error {
-	folder := filepath.Join(path, gitFolder)
+	folder := filepath.Join(path, GitFolder)
 	command := fmt.Sprintf("git --git-dir %s --work-tree %s add .", folder, path)
 	cmd := exec.Command(shell, "-c", command)
 
@@ -24,7 +24,7 @@ func Add(shell, path string) error {
 }
 
 func Commit(shell, path, msg string) error {
-	folder := filepath.Join(path, gitFolder)
+	folder := filepath.Join(path, GitFolder)
 	command := fmt.Sprintf("git --git-dir %s --work-tree %s commit -m \"%s\"", folder, path, msg)
 	cmd := exec.Command(shell, "-c", command)
 
@@ -39,7 +39,7 @@ func Commit(shell, path, msg string) error {
 func Push(shell, path string) error {
 	zap.S().Info("🚀 pushing vault to GitHub")
 
-	folder := filepath.Join(path, gitFolder)
+	folder := filepath.Join(path, GitFolder)
 	command := fmt.Sprintf("git --git-dir %s --work-tree %s push origin main", folder, path)
 	cmd := exec.Command(shell, "-c", command)
 
@@ -54,7 +54,7 @@ func Push(shell, path string) error {
 func Pull(shell, path string) error {
 	zap.S().Info("📡 pulling vault from GitHub")
 
-	folder := filepath.Join(path, gitFolder)
+	folder := filepath.Join(path, GitFolder)
 	command := fmt.Sprintf("git --git-dir %s --work-tree %s pull origin main", folder, path)
 	cmd := exec.Command(shell, "-c", command)
 

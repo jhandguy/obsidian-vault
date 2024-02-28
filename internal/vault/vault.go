@@ -163,7 +163,7 @@ func (v *Vault) clean(t vaultType) error {
 			return nil
 		}
 
-		if strings.HasPrefix(d.Name(), ".") {
+		if d.Name() == git.GitFolder || p == v.gitPath {
 			return filepath.SkipDir
 		}
 
@@ -171,6 +171,8 @@ func (v *Vault) clean(t vaultType) error {
 			if err := os.RemoveAll(p); err != nil {
 				return fmt.Errorf("failed to remove directory %s: %w", p, err)
 			}
+
+			zap.S().Debugf("removed directory: %s", p)
 			return filepath.SkipDir
 		}
 
@@ -178,6 +180,7 @@ func (v *Vault) clean(t vaultType) error {
 			return fmt.Errorf("failed to remove file %s: %w", p, err)
 		}
 
+		zap.S().Debugf("removed file: %s", p)
 		return nil
 	}
 
@@ -191,6 +194,8 @@ func (v *Vault) clean(t vaultType) error {
 		if err := os.MkdirAll(dirPath, os.ModePerm); err != nil {
 			return fmt.Errorf("failed to create directory %s: %w", dirPath, err)
 		}
+
+		zap.S().Debugf("created directory: %s", dirPath)
 	}
 
 	return nil
@@ -246,7 +251,6 @@ func (v *Vault) encryptFile(fileName, password string) error {
 	}
 
 	zap.S().Debugf("encrypted file: %s (%dB)", gitFile, len(encrypted))
-
 	return nil
 }
 
@@ -289,6 +293,5 @@ func (v *Vault) decryptFile(fileName, password string) error {
 	}
 
 	zap.S().Debugf("decrypted file: %s (%dB)", localFile, len(decrypted))
-
 	return nil
 }
