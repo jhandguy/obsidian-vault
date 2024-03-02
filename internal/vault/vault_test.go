@@ -3,6 +3,7 @@ package vault
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -30,11 +31,29 @@ func TestExample(t *testing.T) {
 	err = v.Push(password)
 	assert.Nil(t, err, "expected no error when pushing vault")
 
-	// TODO: check git files were created and encrypted
-	// TODO: remove local files
+	tmpPath := filepath.Join(pwd, "tmp")
+	err = os.MkdirAll(tmpPath, os.ModePerm)
+	assert.Nil(t, err, "expected no error when creating tmp folder")
+	defer os.RemoveAll(tmpPath)
+
+	for _, file := range append(v.directories, v.files...) {
+		if strings.Contains(file, "/") {
+			continue
+		}
+		err := os.Rename(filepath.Join(v.localPath, file), filepath.Join(tmpPath, file))
+		assert.Nil(t, err, "expected no error when renaming file")
+	}
 
 	err = v.Pull(password)
 	assert.Nil(t, err, "expected no error when pushing vault")
 
-	// TODO: check local files were recreated and decrypted
+	for _, file := range v.files {
+		plaintext, err := os.ReadFile(filepath.Join(tmpPath, file))
+		assert.Nil(t, err, "expected no error when reading plaintext file")
+
+		decrypted, err := os.ReadFile(filepath.Join(v.localPath, file))
+		assert.Nil(t, err, "expected no error when reading decrypted file")
+
+		assert.Equal(t, string(plaintext), string(decrypted), "expected plaintext and decrypted files to be equal")
+	}
 }

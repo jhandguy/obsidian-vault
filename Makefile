@@ -18,4 +18,4 @@ build: check
 	go build -o bin/ov
 
 test:
-	go test -v ./...
+	go test -v ./... -race -covermode=atomic -shuffle=on
