@@ -124,7 +124,7 @@ func (v *Vault) scan(t vaultType) error {
 
 	v.directories = []string{}
 	v.files = []string{}
-	fn := func(p string, d fs.DirEntry, e error) error {
+	fn := func(p string, d fs.DirEntry, _ error) error {
 		if p == path {
 			return nil
 		}
@@ -162,7 +162,7 @@ func (v *Vault) clean(t vaultType) error {
 		return err
 	}
 
-	fn := func(p string, d fs.DirEntry, e error) error {
+	fn := func(p string, d fs.DirEntry, _ error) error {
 		if p == path {
 			return nil
 		}
