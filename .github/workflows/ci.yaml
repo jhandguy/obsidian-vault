@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    name: Build
+    name: Build and test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -26,9 +26,7 @@ jobs:
           check-latest: true
 
       - name: Install dependencies
-        run: |
-          brew update
-          brew install revive staticcheck
+        run: brew update && brew install revive staticcheck
 
       - name: Build and test
         run: make build test
