@@ -15,7 +15,7 @@ import (
 var cmd = &cobra.Command{
 	Use:   "ov",
 	Short: "CLI to backup Obsidian encrypted notes in GitHub",
-	Long:  "obsidian-vault is a CLI to backup your Obsidian notes in GitHub with AES-GCM-256 authenticated encryption.",
+	Long:  "obsidian-vault is a CLI to backup your Obsidian notes in GitHub using AES-GCM-256 authenticated encryption.",
 	CompletionOptions: cobra.CompletionOptions{
 		DisableDefaultCmd: true,
 	},

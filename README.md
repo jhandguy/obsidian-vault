@@ -13,7 +13,7 @@ The following CLIs are required to use obsidian-vault:
 
 ```shell
 ➜ ov
-obsidian-vault is a CLI to backup your Obsidian notes in GitHub with AES-GCM-256 authenticated encryption.
+obsidian-vault is a CLI to backup your Obsidian notes in GitHub using AES-GCM-256 authenticated encryption.
 
 Usage:
   ov [command]
