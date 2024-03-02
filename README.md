@@ -9,6 +9,10 @@ The following CLIs are required to use obsidian-vault:
 - [GitHub](https://cli.github.com/)
 - [Git](https://git-scm.com/)
 
+## Installation
+
+_TODO_
+
 ## Usage
 
 ```shell
