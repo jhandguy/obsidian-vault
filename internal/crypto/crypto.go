@@ -9,8 +9,14 @@ import (
 	"golang.org/x/crypto/scrypt"
 )
 
-func Decrypt(data []byte, password, fileName string) ([]byte, error) {
-	key, err := deriveKey(password, fileName)
+type Crypto struct{}
+
+func New() *Crypto {
+	return &Crypto{}
+}
+
+func (c *Crypto) Decrypt(data []byte, password string, fileName string) ([]byte, error) {
+	key, err := c.deriveKey(password, fileName)
 	if err != nil {
 		return nil, err
 	}
@@ -36,8 +42,8 @@ func Decrypt(data []byte, password, fileName string) ([]byte, error) {
 	return plaintext, nil
 }
 
-func Encrypt(plaintext []byte, password, fileName string) ([]byte, error) {
-	key, err := deriveKey(password, fileName)
+func (c *Crypto) Encrypt(plaintext []byte, password, fileName string) ([]byte, error) {
+	key, err := c.deriveKey(password, fileName)
 	if err != nil {
 		return nil, err
 	}
@@ -60,6 +66,6 @@ func Encrypt(plaintext []byte, password, fileName string) ([]byte, error) {
 	return gcm.Seal(nonce, nonce, plaintext, nil), nil
 }
 
-func deriveKey(password, fileName string) ([]byte, error) {
+func (c *Crypto) deriveKey(password, fileName string) ([]byte, error) {
 	return scrypt.Key([]byte(password), []byte(fileName), 32768, 8, 1, 32)
 }

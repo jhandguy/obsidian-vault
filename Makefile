@@ -1,4 +1,4 @@
-.PHONY: all tidy lint vet staticcheck check build test
+.PHONY: tidy lint vet staticcheck check build test
 
 tidy:
 	go mod tidy -go=1.22.0

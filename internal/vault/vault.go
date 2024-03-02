@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/jhandguy/obsidian-vault/internal/crypto"
-	"github.com/jhandguy/obsidian-vault/internal/env"
 	"github.com/jhandguy/obsidian-vault/internal/gh"
 	"github.com/jhandguy/obsidian-vault/internal/git"
 	"go.uber.org/zap"
@@ -20,6 +19,9 @@ type Vault struct {
 	files       []string
 	localPath   string
 	gitPath     string
+	gh          *gh.GitHub
+	git         *git.Git
+	crypto      *crypto.Crypto
 }
 
 type vaultType string
@@ -36,6 +38,8 @@ func New(path string) (*Vault, error) {
 	}
 
 	gitPath := filepath.Join(localPath, fmt.Sprintf(".git-%s", filepath.Base(localPath)))
+	repoName := filepath.Base(localPath)
+	shell := getShell()
 
 	zap.S().Debugf("local vault path: %s", localPath)
 	zap.S().Debugf("git vault path: %s", gitPath)
@@ -43,20 +47,20 @@ func New(path string) (*Vault, error) {
 	return &Vault{
 		localPath: localPath,
 		gitPath:   gitPath,
+		gh:        gh.New(shell, gitPath, repoName),
+		git:       git.New(shell, gitPath),
+		crypto:    crypto.New(),
 	}, nil
 }
 
 func (v *Vault) Clone(create bool) error {
-	shell := env.GetShell()
-	name := filepath.Base(v.localPath)
-
 	if create {
-		if err := gh.CreateRepository(shell, name); err != nil {
+		if err := v.gh.CreateRepository(os.Stdout, os.Stderr); err != nil {
 			return err
 		}
 	}
 
-	if err := gh.CloneRepository(shell, name, v.gitPath); err != nil {
+	if err := v.gh.CloneRepository(os.Stdout, os.Stderr); err != nil {
 		return err
 	}
 
@@ -64,8 +68,7 @@ func (v *Vault) Clone(create bool) error {
 }
 
 func (v *Vault) Pull(password string) error {
-	shell := env.GetShell()
-	if err := git.Pull(shell, v.gitPath); err != nil {
+	if err := v.git.Pull(os.Stdout, os.Stderr); err != nil {
 		return err
 	}
 
@@ -85,7 +88,6 @@ func (v *Vault) Pull(password string) error {
 }
 
 func (v *Vault) Push(password string) error {
-	shell := env.GetShell()
 	if err := v.scan(vaultTypeLocal); err != nil {
 		return err
 	}
@@ -98,16 +100,16 @@ func (v *Vault) Push(password string) error {
 		return err
 	}
 
-	if err := git.Add(shell, v.gitPath); err != nil {
+	if err := v.git.Add(os.Stdout, os.Stderr); err != nil {
 		return err
 	}
 
 	msg := fmt.Sprintf("[%s] obsidian-vault backup", time.Now().Format(time.DateTime))
-	if err := git.Commit(shell, v.gitPath, msg); err != nil {
+	if err := v.git.Commit(os.Stdout, os.Stderr, msg); err != nil {
 		return err
 	}
 
-	return git.Push(shell, v.gitPath)
+	return v.git.Push(os.Stdout, os.Stderr)
 }
 
 func (v *Vault) scan(t vaultType) error {
@@ -120,6 +122,8 @@ func (v *Vault) scan(t vaultType) error {
 		return fmt.Errorf("not an obsidian vault: %s", path)
 	}
 
+	v.directories = []string{}
+	v.files = []string{}
 	fn := func(p string, d fs.DirEntry, e error) error {
 		if p == path {
 			return nil
@@ -163,7 +167,7 @@ func (v *Vault) clean(t vaultType) error {
 			return nil
 		}
 
-		if d.Name() == git.GitFolder || p == v.gitPath {
+		if d.Name() == git.HiddenFolder || p == v.gitPath {
 			return filepath.SkipDir
 		}
 
@@ -241,7 +245,7 @@ func (v *Vault) encryptFile(fileName, password string) error {
 		return fmt.Errorf("failed to read file %s: %w", localFile, err)
 	}
 
-	encrypted, err := crypto.Encrypt(data, password, fileName)
+	encrypted, err := v.crypto.Encrypt(data, password, fileName)
 	if err != nil {
 		return fmt.Errorf("failed to encrypt file %s: %w", localFile, err)
 	}
@@ -283,7 +287,7 @@ func (v *Vault) decryptFile(fileName, password string) error {
 		return fmt.Errorf("failed to read file %s: %w", gitFile, err)
 	}
 
-	decrypted, err := crypto.Decrypt(data, password, fileName)
+	decrypted, err := v.crypto.Decrypt(data, password, fileName)
 	if err != nil {
 		return fmt.Errorf("failed to decrypt file %s: %w", gitFile, err)
 	}
@@ -294,4 +298,13 @@ func (v *Vault) decryptFile(fileName, password string) error {
 
 	zap.S().Debugf("decrypted file: %s (%dB)", localFile, len(decrypted))
 	return nil
+}
+
+func getShell() string {
+	shell, ok := os.LookupEnv("SHELL")
+	if !ok {
+		return "/bin/sh"
+	}
+
+	return shell
 }
