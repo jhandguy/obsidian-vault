@@ -3,7 +3,6 @@ package clone
 import (
 	"github.com/jhandguy/obsidian-vault/internal/vault"
 	"github.com/spf13/cobra"
-	"go.uber.org/zap"
 )
 
 var Cmd = &cobra.Command{
@@ -31,11 +30,5 @@ func clone(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	if err := v.Clone(create); err != nil {
-		return err
-	}
-
-	zap.S().Info("✅ github clone successful")
-
-	return nil
+	return v.Clone(create)
 }

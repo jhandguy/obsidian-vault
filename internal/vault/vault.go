@@ -2,6 +2,7 @@ package vault
 
 import (
 	"fmt"
+	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -22,6 +23,8 @@ type Vault struct {
 	gh          *gh.GitHub
 	git         *git.Git
 	crypto      *crypto.Crypto
+	stdout      io.Writer
+	stderr      io.Writer
 }
 
 type vaultType string
@@ -44,31 +47,43 @@ func New(path string) (*Vault, error) {
 	zap.S().Debugf("local vault path: %s", localPath)
 	zap.S().Debugf("git vault path: %s", gitPath)
 
+	var stdout, stderr io.Writer
+	if zap.S().Level() == zap.DebugLevel {
+		stdout = os.Stdout
+		stderr = os.Stderr
+	}
+
 	return &Vault{
 		localPath: localPath,
 		gitPath:   gitPath,
 		gh:        gh.New(shell, gitPath, repoName),
 		git:       git.New(shell, gitPath),
 		crypto:    crypto.New(),
+		stdout:    stdout,
+		stderr:    stderr,
 	}, nil
 }
 
 func (v *Vault) Clone(create bool) error {
 	if create {
-		if err := v.gh.CreateRepository(os.Stdout, os.Stderr); err != nil {
+		zap.S().Info("🐙 creating github repository")
+		if err := v.gh.CreateRepository(v.stdout, v.stderr); err != nil {
 			return err
 		}
 	}
 
-	if err := v.gh.CloneRepository(os.Stdout, os.Stderr); err != nil {
+	zap.S().Info("📦 cloning github repository")
+	if err := v.gh.CloneRepository(v.stdout, v.stderr); err != nil {
 		return err
 	}
 
+	zap.S().Info("✅ github clone successful")
 	return nil
 }
 
 func (v *Vault) Pull(password string) error {
-	if err := v.git.Pull(os.Stdout, os.Stderr); err != nil {
+	zap.S().Info("📡 pulling vault from GitHub")
+	if err := v.git.Pull(v.stdout, v.stderr); err != nil {
 		return err
 	}
 
@@ -80,10 +95,12 @@ func (v *Vault) Pull(password string) error {
 		return err
 	}
 
+	zap.S().Infof("🔑 decrypting vault: %s", v.gitPath)
 	if err := v.decrypt(password); err != nil {
 		return err
 	}
 
+	zap.S().Info("✅ vault sync successful")
 	return nil
 }
 
@@ -96,20 +113,27 @@ func (v *Vault) Push(password string) error {
 		return err
 	}
 
+	zap.S().Infof("🔒 encrypting vault: %s", v.localPath)
 	if err := v.encrypt(password); err != nil {
 		return err
 	}
 
-	if err := v.git.Add(os.Stdout, os.Stderr); err != nil {
+	zap.S().Info("🚀 pushing vault to GitHub")
+	if err := v.git.Add(v.stdout, v.stderr); err != nil {
 		return err
 	}
 
 	msg := fmt.Sprintf("[%s] obsidian-vault backup", time.Now().Format(time.DateTime))
-	if err := v.git.Commit(os.Stdout, os.Stderr, msg); err != nil {
+	if err := v.git.Commit(v.stdout, v.stderr, msg); err != nil {
 		return err
 	}
 
-	return v.git.Push(os.Stdout, os.Stderr)
+	if err := v.git.Push(v.stdout, v.stderr); err != nil {
+		return err
+	}
+
+	zap.S().Info("✅ vault backup successful")
+	return nil
 }
 
 func (v *Vault) scan(t vaultType) error {
@@ -217,8 +241,6 @@ func (v *Vault) getVaultPath(t vaultType) (string, error) {
 }
 
 func (v *Vault) encrypt(password string) error {
-	zap.S().Infof("🔒 encrypting vault: %s", v.localPath)
-
 	channel := make(chan error, len(v.files))
 
 	for _, fileName := range v.files {
@@ -259,8 +281,6 @@ func (v *Vault) encryptFile(fileName, password string) error {
 }
 
 func (v *Vault) decrypt(password string) error {
-	zap.S().Infof("🔑 decrypting vault: %s", v.gitPath)
-
 	channel := make(chan error, len(v.files))
 
 	for _, fileName := range v.files {

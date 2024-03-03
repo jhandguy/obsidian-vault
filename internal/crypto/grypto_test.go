@@ -14,20 +14,20 @@ func TestEncryptionAndDecryptionPreserveOriginalData(t *testing.T) {
 
 	data, err := c.Encrypt(plaintext, password, fileName)
 
-	assert.Nil(t, err, "expected no error when encrypting data")
-	assert.NotEmpty(t, data, "expected encrypted data to be non-empty")
-	assert.NotEqualf(t, plaintext, data, "expected encrypted data to be different from plaintext")
+	assert.NoError(t, err)
+	assert.NotEmpty(t, data)
+	assert.NotEqual(t, plaintext, data)
 
 	decrypted, err := c.Decrypt(data, password, fileName)
 
-	assert.Nil(t, err, "expected no error when decrypting data")
-	assert.NotEmpty(t, decrypted, "expected decrypted data to be non-empty")
-	assert.Equalf(t, plaintext, decrypted, "expected decrypted data to be the same as plaintext")
+	assert.NoError(t, err)
+	assert.NotEmpty(t, decrypted)
+	assert.Equal(t, plaintext, decrypted)
 
 	encrypted, err := c.Encrypt(plaintext, password, fileName)
 
-	assert.Nil(t, err, "expected no error when encrypting data")
-	assert.NotEmpty(t, encrypted, "expected encrypted data to be non-empty")
-	assert.NotEqualf(t, plaintext, encrypted, "expected encrypted data to be different from plaintext")
-	assert.NotEqualf(t, data, encrypted, "expected encrypted data to be different from previous encrypted data")
+	assert.NoError(t, err)
+	assert.NotEmpty(t, encrypted)
+	assert.NotEqual(t, plaintext, encrypted)
+	assert.NotEqual(t, data, encrypted)
 }

@@ -11,29 +11,31 @@ import (
 
 func TestExample(t *testing.T) {
 	pwd, err := os.Getwd()
-	assert.Nil(t, err, "expected no error when getting current working directory")
+	assert.NoError(t, err)
+
 	path := filepath.Join(pwd, "../../example")
 	password := "consectetur-adipiscing-elit"
 
 	err = os.Setenv("SHELL", "echo")
-	assert.Nil(t, err, "expected no error when setting SHELL environment variable")
+	assert.NoError(t, err)
 
 	v, err := New(path)
-	assert.Nil(t, err, "expected no error when creating vault")
+	assert.NoError(t, err)
 
 	gitPath, err := v.getVaultPath(vaultTypeGit)
-	assert.Nil(t, err, "expected no error when getting git vault path")
+	assert.NoError(t, err)
 
 	err = os.MkdirAll(gitPath, os.ModePerm)
-	assert.Nil(t, err, "expected no error when creating git vault folder")
+	assert.NoError(t, err)
 	defer os.RemoveAll(gitPath)
 
 	err = v.Push(password)
-	assert.Nil(t, err, "expected no error when pushing vault")
+	assert.NoError(t, err)
 
 	tmpPath := filepath.Join(pwd, "tmp")
 	err = os.MkdirAll(tmpPath, os.ModePerm)
-	assert.Nil(t, err, "expected no error when creating tmp folder")
+	assert.NoError(t, err)
+
 	defer os.RemoveAll(tmpPath)
 
 	for _, file := range append(v.directories, v.files...) {
@@ -41,19 +43,18 @@ func TestExample(t *testing.T) {
 			continue
 		}
 		err := os.Rename(filepath.Join(v.localPath, file), filepath.Join(tmpPath, file))
-		assert.Nil(t, err, "expected no error when renaming file")
+		assert.NoError(t, err)
 	}
 
 	err = v.Pull(password)
-	assert.Nil(t, err, "expected no error when pushing vault")
+	assert.NoError(t, err)
 
 	for _, file := range v.files {
 		plaintext, err := os.ReadFile(filepath.Join(tmpPath, file))
-		assert.Nil(t, err, "expected no error when reading plaintext file")
+		assert.NoError(t, err)
 
 		decrypted, err := os.ReadFile(filepath.Join(v.localPath, file))
-		assert.Nil(t, err, "expected no error when reading decrypted file")
-
-		assert.Equal(t, string(plaintext), string(decrypted), "expected plaintext and decrypted files to be equal")
+		assert.NoError(t, err)
+		assert.Equal(t, string(plaintext), string(decrypted))
 	}
 }

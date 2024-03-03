@@ -12,6 +12,8 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
+var debug bool
+
 var cmd = &cobra.Command{
 	Use:   "ov",
 	Short: "CLI to backup Obsidian encrypted notes in GitHub",
@@ -28,6 +30,7 @@ func init() {
 	cmd.AddCommand(pull.Cmd)
 	cmd.AddCommand(push.Cmd)
 
+	cmd.PersistentFlags().BoolVarP(&debug, "debug", "d", false, "debug for ov")
 	cmd.PersistentFlags().String("path", ".", "path to the obsidian vault")
 }
 
@@ -44,6 +47,13 @@ func setupLogger() error {
 	config.EncoderConfig.EncodeTime = zapcore.TimeEncoderOfLayout(time.TimeOnly)
 	config.DisableStacktrace = true
 	config.DisableCaller = true
+
+	if debug {
+		config.Level.SetLevel(zap.DebugLevel)
+	} else {
+		config.Level.SetLevel(zap.InfoLevel)
+	}
+
 	logger, err := config.Build()
 	if err != nil {
 		return err

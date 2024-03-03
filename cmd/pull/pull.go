@@ -3,7 +3,6 @@ package pull
 import (
 	"github.com/jhandguy/obsidian-vault/internal/vault"
 	"github.com/spf13/cobra"
-	"go.uber.org/zap"
 )
 
 var Cmd = &cobra.Command{
@@ -32,11 +31,5 @@ func pull(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	if err = v.Pull(password); err != nil {
-		return err
-	}
-
-	zap.S().Info("✅ vault sync successful")
-
-	return nil
+	return v.Pull(password)
 }

@@ -3,10 +3,9 @@ package git
 import (
 	"fmt"
 	"io"
-	"os/exec"
 	"path/filepath"
 
-	"go.uber.org/zap"
+	"github.com/jhandguy/obsidian-vault/internal/cmd"
 )
 
 type Git struct {
@@ -23,11 +22,7 @@ const HiddenFolder = ".git"
 func (g *Git) Add(stdout, stderr io.Writer) error {
 	folder := filepath.Join(g.path, HiddenFolder)
 	command := fmt.Sprintf("git --git-dir %s --work-tree %s add .", folder, g.path)
-	cmd := exec.Command(g.shell, "-c", command)
-	cmd.Stdout = stdout
-	cmd.Stderr = stderr
-
-	err := cmd.Run()
+	err := cmd.Run(g.shell, command, stdout, stderr)
 	if err != nil {
 		return fmt.Errorf("failed to add git changes: %v", err)
 	}
@@ -38,11 +33,7 @@ func (g *Git) Add(stdout, stderr io.Writer) error {
 func (g *Git) Commit(stdout, stderr io.Writer, msg string) error {
 	folder := filepath.Join(g.path, HiddenFolder)
 	command := fmt.Sprintf("git --git-dir %s --work-tree %s commit -m \"%s\"", folder, g.path, msg)
-	cmd := exec.Command(g.shell, "-c", command)
-	cmd.Stdout = stdout
-	cmd.Stderr = stderr
-
-	err := cmd.Run()
+	err := cmd.Run(g.shell, command, stdout, stderr)
 	if err != nil {
 		return fmt.Errorf("failed to commit git changes: %v", err)
 	}
@@ -51,15 +42,9 @@ func (g *Git) Commit(stdout, stderr io.Writer, msg string) error {
 }
 
 func (g *Git) Push(stdout, stderr io.Writer) error {
-	zap.S().Info("🚀 pushing vault to GitHub")
-
 	folder := filepath.Join(g.path, HiddenFolder)
 	command := fmt.Sprintf("git --git-dir %s --work-tree %s push origin main", folder, g.path)
-	cmd := exec.Command(g.shell, "-c", command)
-	cmd.Stdout = stdout
-	cmd.Stderr = stderr
-
-	err := cmd.Run()
+	err := cmd.Run(g.shell, command, stdout, stderr)
 	if err != nil {
 		return fmt.Errorf("failed to push git changes: %v", err)
 	}
@@ -68,15 +53,9 @@ func (g *Git) Push(stdout, stderr io.Writer) error {
 }
 
 func (g *Git) Pull(stdout, stderr io.Writer) error {
-	zap.S().Info("📡 pulling vault from GitHub")
-
 	folder := filepath.Join(g.path, HiddenFolder)
 	command := fmt.Sprintf("git --git-dir %s --work-tree %s pull origin main", folder, g.path)
-	cmd := exec.Command(g.shell, "-c", command)
-	cmd.Stdout = stdout
-	cmd.Stderr = stderr
-
-	err := cmd.Run()
+	err := cmd.Run(g.shell, command, stdout, stderr)
 	if err != nil {
 		return fmt.Errorf("failed to pull git changes: %v", err)
 	}
