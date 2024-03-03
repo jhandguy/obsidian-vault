@@ -1,6 +1,6 @@
 .PHONY: tidy lint vet staticcheck check build test
 
-VERSION:=$(shell git describe --tags)
+VERSION:=$(shell git describe --tags 2> /dev/null || git rev-parse HEAD)
 
 tidy:
 	go mod tidy -go=1.22.0
