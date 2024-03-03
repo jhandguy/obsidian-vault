@@ -31,6 +31,7 @@ Available Commands:
 Flags:
   -h, --help          help for ov
       --path string   path to the obsidian vault (default ".")
+  -v, --version       version for ov
 
 Use "ov [command] --help" for more information about a command.
 ```

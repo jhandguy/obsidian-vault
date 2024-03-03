@@ -52,7 +52,8 @@ func setupLogger() error {
 	return nil
 }
 
-func Execute() {
+func Execute(version string) {
+	cmd.Version = version
 	if err := cmd.Execute(); err != nil {
 		zap.S().Fatalf("❌ %v", err)
 	}
