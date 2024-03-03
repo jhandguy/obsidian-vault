@@ -10,7 +10,30 @@ on:
 
 jobs:
   check:
-    name: Check, build and test
+    name: Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          check-latest: true
+
+      - name: Install revive
+        run: go install github.com/mgechev/revive@latest
+
+      - name: Install staticcheck
+        run: go install honnef.co/go/tools/cmd/staticcheck@latest
+
+      - name: Check
+        run: make check
+
+  build:
+    name: Build and test
+    needs: check
     strategy:
       matrix:
         include:
@@ -41,14 +64,8 @@ jobs:
           go-version-file: go.mod
           check-latest: true
 
-      - name: Install revive
-        run: go install github.com/mgechev/revive@latest
-
-      - name: Install staticcheck
-        run: go install honnef.co/go/tools/cmd/staticcheck@latest
-
-      - name: Check and build
-        run: make check build
+      - name: Build
+        run: make build
         env:
           CGO_ENABLED: 0
           GOOS: ${{ matrix.goos }}
