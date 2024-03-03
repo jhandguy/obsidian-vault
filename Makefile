@@ -14,8 +14,8 @@ staticcheck:
 
 check: tidy lint vet staticcheck
 
-build: check
-	go build -o bin/ov
+build:
+	go build -o ov
 
 test:
 	go test -v ./... -race -covermode=atomic -shuffle=on

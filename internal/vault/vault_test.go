@@ -37,7 +37,7 @@ func TestExample(t *testing.T) {
 	defer os.RemoveAll(tmpPath)
 
 	for _, file := range append(v.directories, v.files...) {
-		if strings.Contains(file, "/") {
+		if strings.Contains(filepath.ToSlash(file), "/") {
 			continue
 		}
 		err := os.Rename(filepath.Join(v.localPath, file), filepath.Join(tmpPath, file))
