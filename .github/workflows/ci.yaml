@@ -15,12 +15,20 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
+            goos: linux
+            goarch: amd64
 
           - os: windows-latest
+            goos: windows
+            goarch: amd64
 
           - os: macos-11
+            goos: darwin
+            goarch: amd64
 
           - os: macos-latest
+            goos: darwin
+            goarch: arm64
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -39,5 +47,12 @@ jobs:
       - name: Install staticcheck
         run: go install honnef.co/go/tools/cmd/staticcheck@latest
 
-      - name: Check, build and test
-        run: make check build test
+      - name: Check and build
+        run: make check build
+        env:
+          CGO_ENABLED: 0
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+
+      - name: Test
+        run: make test
