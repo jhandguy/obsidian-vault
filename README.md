@@ -1,17 +1,23 @@
 # obsidian-vault
 
-obsidian-vault is a CLI to backup your Obsidian notes in GitHub using AES-GCM-256 authenticated encryption.
+**obsidian-vault** is a CLI to backup your Obsidian notes in GitHub using AES-GCM-256 authenticated encryption.
 
 ## Requirements
 
-The following CLIs are required to use obsidian-vault:
+The following CLIs are required to use **obsidian-vault**:
 
 - [GitHub](https://cli.github.com/)
 - [Git](https://git-scm.com/)
 
 ## Installation
 
-_TODO_
+**obsidian-vault** can be installed via [homebrew-tap](https://github.com/jhandguy/homebrew-tap) with
+
+```shell
+brew install jhandguy/tap/obsidian-vault
+```
+
+or downloaded as binary from the [releases page](https://github.com/jhandguy/obsidian-vault/releases).
 
 ## Usage
 
