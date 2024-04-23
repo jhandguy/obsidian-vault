@@ -1,6 +1,6 @@
 # obsidian-vault
 
-**obsidian-vault** is a CLI to backup your Obsidian notes in GitHub using AES-GCM-256 authenticated encryption.
+**obsidian-vault** is a CLI to backup your [Obsidian](https://obsidian.md/) notes in GitHub using AES-GCM-256 authenticated encryption.
 
 ## Requirements
 
