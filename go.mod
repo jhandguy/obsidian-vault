@@ -6,7 +6,7 @@ require (
 	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.9.0
 	go.uber.org/zap v1.27.0
-	golang.org/x/crypto v0.23.0
+	golang.org/x/crypto v0.24.0
 )
 
 require (
