@@ -35,9 +35,11 @@ Available Commands:
   push        Encrypt and push local vault to Git
 
 Flags:
-  -h, --help          help for ov
-      --path string   path to the obsidian vault (default ".")
-  -v, --version       version for ov
+      --config string   name of the config folder (default ".obsidian")
+  -d, --debug           debug for ov
+  -h, --help            help for ov
+      --path string     path to the obsidian vault (default ".")
+  -v, --version         version for ov
 
 Use "ov [command] --help" for more information about a command.
 ```
