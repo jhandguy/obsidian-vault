@@ -16,6 +16,7 @@ import (
 )
 
 type Vault struct {
+	config      string
 	directories []string
 	files       []string
 	localPath   string
@@ -34,7 +35,7 @@ const (
 	vaultTypeGit   vaultType = "git"
 )
 
-func New(path string) (*Vault, error) {
+func New(path, config string) (*Vault, error) {
 	localPath, err := filepath.Abs(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get local vault path: %w", err)
@@ -54,6 +55,7 @@ func New(path string) (*Vault, error) {
 	}
 
 	return &Vault{
+		config:    config,
 		localPath: localPath,
 		gitPath:   gitPath,
 		gh:        gh.New(shell, gitPath, repoName),
@@ -142,7 +144,7 @@ func (v *Vault) scan(t vaultType) error {
 		return err
 	}
 
-	if _, err := os.Stat(filepath.Join(path, ".obsidian")); os.IsNotExist(err) {
+	if _, err := os.Stat(filepath.Join(path, v.config)); os.IsNotExist(err) {
 		return fmt.Errorf("not an obsidian vault: %s", path)
 	}
 

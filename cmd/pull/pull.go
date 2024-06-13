@@ -26,7 +26,12 @@ func pull(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	v, err := vault.New(path)
+	config, err := cmd.InheritedFlags().GetString("config")
+	if err != nil {
+		return err
+	}
+
+	v, err := vault.New(path, config)
 	if err != nil {
 		return err
 	}

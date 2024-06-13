@@ -14,12 +14,13 @@ func TestExample(t *testing.T) {
 	assert.NoError(t, err)
 
 	path := filepath.Join(pwd, "../../example")
+	config := ".obsidian"
 	password := "consectetur-adipiscing-elit"
 
 	err = os.Setenv("SHELL", "echo")
 	assert.NoError(t, err)
 
-	v, err := New(path)
+	v, err := New(path, config)
 	assert.NoError(t, err)
 
 	gitPath, err := v.getVaultPath(vaultTypeGit)
@@ -35,7 +36,6 @@ func TestExample(t *testing.T) {
 	tmpPath := filepath.Join(pwd, "tmp")
 	err = os.MkdirAll(tmpPath, os.ModePerm)
 	assert.NoError(t, err)
-
 	defer os.RemoveAll(tmpPath)
 
 	for _, file := range append(v.directories, v.files...) {

@@ -32,6 +32,7 @@ func init() {
 
 	cmd.PersistentFlags().BoolVarP(&debug, "debug", "d", false, "debug for ov")
 	cmd.PersistentFlags().String("path", ".", "path to the obsidian vault")
+	cmd.PersistentFlags().String("config", ".obsidian", "name of the config folder")
 }
 
 func setup() {
