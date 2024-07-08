@@ -57,4 +57,16 @@ func TestExample(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, string(plaintext), string(decrypted))
 	}
+
+	v.localPath = tmpPath
+	err = v.Clean(true)
+	assert.NoError(t, err)
+
+	for _, file := range v.files {
+		_, err := os.Stat(filepath.Join(tmpPath, file))
+		assert.True(t, os.IsNotExist(err))
+
+		_, err = os.Stat(filepath.Join(v.gitPath, file))
+		assert.True(t, os.IsNotExist(err))
+	}
 }

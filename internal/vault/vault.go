@@ -66,6 +66,26 @@ func New(path, config string) (*Vault, error) {
 	}, nil
 }
 
+func (v *Vault) Clean(remove bool) error {
+	zap.S().Info("🧹 cleaning local vault")
+	if err := v.scan(vaultTypeLocal, false); err != nil {
+		return err
+	}
+	if err := v.clean(vaultTypeLocal, false); err != nil {
+		return err
+	}
+
+	if remove {
+		zap.S().Info("🗑  removing git vault")
+		if err := os.RemoveAll(v.gitPath); err != nil {
+			return err
+		}
+	}
+
+	zap.S().Info("✅ vault clean successful")
+	return nil
+}
+
 func (v *Vault) Clone(create bool) error {
 	if create {
 		zap.S().Info("🐙 creating github repository")
@@ -89,11 +109,11 @@ func (v *Vault) Pull(password string) error {
 		return err
 	}
 
-	if err := v.scan(vaultTypeGit); err != nil {
+	if err := v.scan(vaultTypeGit, true); err != nil {
 		return err
 	}
 
-	if err := v.clean(vaultTypeLocal); err != nil {
+	if err := v.clean(vaultTypeLocal, true); err != nil {
 		return err
 	}
 
@@ -107,11 +127,11 @@ func (v *Vault) Pull(password string) error {
 }
 
 func (v *Vault) Push(password string) error {
-	if err := v.scan(vaultTypeLocal); err != nil {
+	if err := v.scan(vaultTypeLocal, true); err != nil {
 		return err
 	}
 
-	if err := v.clean(vaultTypeGit); err != nil {
+	if err := v.clean(vaultTypeGit, true); err != nil {
 		return err
 	}
 
@@ -138,13 +158,13 @@ func (v *Vault) Push(password string) error {
 	return nil
 }
 
-func (v *Vault) scan(t vaultType) error {
+func (v *Vault) scan(t vaultType, check bool) error {
 	path, err := v.getVaultPath(t)
 	if err != nil {
 		return err
 	}
 
-	if _, err := os.Stat(filepath.Join(path, v.config)); os.IsNotExist(err) {
+	if _, err := os.Stat(filepath.Join(path, v.config)); os.IsNotExist(err) && check {
 		return fmt.Errorf("not an obsidian vault: %s", path)
 	}
 
@@ -182,7 +202,7 @@ func (v *Vault) scan(t vaultType) error {
 	return nil
 }
 
-func (v *Vault) clean(t vaultType) error {
+func (v *Vault) clean(t vaultType, recreate bool) error {
 	path, err := v.getVaultPath(t)
 	if err != nil {
 		return err
@@ -216,6 +236,10 @@ func (v *Vault) clean(t vaultType) error {
 
 	if err := filepath.WalkDir(path, fn); err != nil {
 		return fmt.Errorf("failed to clean vault: %w", err)
+	}
+
+	if !recreate {
+		return nil
 	}
 
 	for _, dir := range v.directories {

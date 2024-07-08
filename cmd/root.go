@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/jhandguy/obsidian-vault/cmd/clean"
 	"github.com/jhandguy/obsidian-vault/cmd/clone"
 	"github.com/jhandguy/obsidian-vault/cmd/pull"
 	"github.com/jhandguy/obsidian-vault/cmd/push"
@@ -26,6 +27,7 @@ var cmd = &cobra.Command{
 func init() {
 	cobra.OnInitialize(setup)
 
+	cmd.AddCommand(clean.Cmd)
 	cmd.AddCommand(clone.Cmd)
 	cmd.AddCommand(pull.Cmd)
 	cmd.AddCommand(push.Cmd)
