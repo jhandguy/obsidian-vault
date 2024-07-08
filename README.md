@@ -29,6 +29,7 @@ Usage:
   ov [command]
 
 Available Commands:
+  clean       Clean and remove local vaults
   clone       Create and clone private GitHub repository
   help        Help about any command
   pull        Pull and decrypt remote vault from Git
