@@ -3,7 +3,7 @@
 VERSION:=$(shell git describe --tags 2> /dev/null || git rev-parse HEAD)
 
 tidy:
-	go mod tidy
+	go mod tidy --diff
 
 lint:
 	revive -config revive/config.toml -formatter friendly ./...
