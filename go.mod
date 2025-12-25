@@ -4,7 +4,7 @@ go 1.24.0
 
 require (
 	github.com/spf13/cobra v1.10.2
-	github.com/stretchr/testify v1.10.0
+	github.com/stretchr/testify v1.11.1
 	go.uber.org/zap v1.27.1
 	golang.org/x/crypto v0.46.0
 )
